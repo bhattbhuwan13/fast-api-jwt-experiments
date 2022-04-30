@@ -1,11 +1,12 @@
 """FastAPI starter sample
 """
 
-from fastapi import FastAPI
+from fastapi import Body, FastAPI
 
 app = FastAPI()
 
-from application.model import PostSchema
+from application.auth.jwt_handler import signJWT
+from application.model import PostSchema, UserLoginSchema, UserSchema
 
 posts = [
     {"id": 1, "title": "Penguins", "content": "Penguins are flightless birds"},
@@ -47,3 +48,25 @@ def add_post(post: PostSchema):
     post.id = len(posts) + 1
     posts.append(post.dict())
     return {"info": "post added"}
+
+
+# Create a new users
+@app.post("/user/signup", tags=["user"])
+def user_signup(user: UserSchema = Body(default=None)):
+    users.append(user)
+    return signJWT(user.email)
+
+
+def check_user(data: UserLoginSchema):
+    for user in users:
+        if user.email == data.email and user.password == data.password:
+            return True
+    return False
+
+
+@app.post("/user/login", tags=["user"])
+def user_login(user: UserLoginSchema = Body(default=None)):
+    if check_user(user):
+        return signJWT(user.email)
+    else:
+        return {"error": "Invalid login details"}
