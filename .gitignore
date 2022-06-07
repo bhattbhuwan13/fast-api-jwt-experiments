@@ -24,3 +24,7 @@ archive.zip
 # vim temporary files
 *~
 .*.sw?
+
+
+# Added example config to gitignore
+.example.config
